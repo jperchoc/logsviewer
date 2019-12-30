@@ -1,0 +1,19 @@
+<html>
+<head>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js" integrity="sha256-TQq84xX6vkwR0Qs1qH5ADkP+MvH0W+9E7TdHJsoIQiM=" crossorigin="anonymous"></script> -->
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <div id="app">
+      <div v-show="!chartRendered">
+        Logs:<input type="file" ref="myFiles" @change="processFile($event)" multiple>
+        <button @click="renderChart">Render Chart</button>
+      </div>
+      <div id="chartContainer" style="height: 870px; width: 100%;"></div>
+    </div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
