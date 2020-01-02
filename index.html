@@ -1,19 +1,37 @@
 <html>
+
 <head>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js" integrity="sha256-TQq84xX6vkwR0Qs1qH5ADkP+MvH0W+9E7TdHJsoIQiM=" crossorigin="anonymous"></script> -->
-    <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta charset="UTF-8">
 </head>
+
 <body>
 
-    <div id="app">
-      <div v-show="!chartRendered">
-        Logs:<input type="file" ref="myFiles" @change="processFile($event)" multiple>
-        <button @click="renderChart">Render Chart</button>
-      </div>
-      <div id="chartContainer" style="height: 870px; width: 100%;"></div>
-    </div>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="app.js"></script>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container>
+          <div v-show="!chartRendered">
+            <v-file-input ref="myFiles" v-model="files" multiple label="Log files"></v-file-input>
+            <br/>
+            <v-btn @click="renderChart">Render Chart</v-btn>
+            <br/>
+            <br/>
+            <v-color-picker v-for="color in colors" v-model="color.color" style="display:inline-block"></v-color-picker>
+          </div>
+          <div id="chartContainer" style="height: 870px; width: 100%;"></div>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>
