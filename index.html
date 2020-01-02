@@ -13,15 +13,26 @@
   <div id="app">
     <v-app>
       <v-content>
-        <v-container>
-          <div v-show="!chartRendered">
-            <v-file-input ref="myFiles" v-model="files" multiple label="Log files"></v-file-input>
-            <br/>
-            <v-btn @click="renderChart">Render Chart</v-btn>
-            <br/>
-            <br/>
-            <v-color-picker v-for="color in colors" v-model="color.color" style="display:inline-block"></v-color-picker>
-          </div>
+        <v-container class="fill-height" fluid>
+          <v-row align="center" justify="center" v-show="!chartRendered">
+            <v-col cols="12" sm="8" md="10">
+              <v-card class="elevation-12">
+                <v-toolbar color="primary" dark flat>
+                  <v-toolbar-title>CraftBeerPi Log Viewer</v-toolbar-title>
+                </v-toolbar>
+                <v-card-text>
+                  <v-form>
+                    <v-file-input ref="myFiles" v-model="files" multiple label="Log files"></v-file-input>
+                    <v-color-picker v-for="color in colors" v-model="color.color" style="display:inline-block"></v-color-picker>
+                  </v-form>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" :disabled="files.length === 0" @click="renderChart">Render Chart</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
           <div id="chartContainer" style="height: 870px; width: 100%;"></div>
         </v-container>
       </v-content>
