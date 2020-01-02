@@ -66,7 +66,7 @@ var app = new Vue({
   vuetify: new Vuetify(vuetifyOptions),
   data: {
     chartRendered: false,
-    data: [],
+    chartData: [],
     files: [],
     colors: [
       { color: '#4661EE'},
@@ -80,22 +80,23 @@ var app = new Vue({
     renderChart: async function () {
       await this.processFiles(this.files);
       this.chartRendered = true;
-      chartOptions.data = this.data;
+      chartOptions.data = this.chartData;
       var chart = new CanvasJS.Chart("chartContainer", chartOptions);
       chart.render();
     },
     processFiles: async function (files) {
+      files = files.sort((a, b) => a.name.localeCompare(b.name));
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
         await this.prepareFile(file);
       }
     },
-    async prepareFile(file) {
+    prepareFile: async function(file) {
       let text = await readFileAsync(file);
-      const isAction = file.name === 'action.log';
+      const isActionLogFile = file.name === 'action.log';
       const lines = text.split(/\r?\n/)
-      let formatedData = [];
       let color = 'black';
+      let formatedData = [];
       //Format Data
       for (let i = 0; i < lines.length; i++) {
         let rawData = lines[i].split(',');
@@ -103,7 +104,7 @@ var app = new Vue({
         if (rawData.length === 2) {
           let dataToAdd = { x: date };
           //y value change if we are reading action.log file
-          if (isAction) {
+          if (isActionLogFile) {
             dataToAdd.y = i % 2 === 0 ? 100 : 90;
             dataToAdd.indexLabel = rawData[1].replace("Start Step", "");
             dataToAdd.markerColor = 'darkred';
@@ -111,22 +112,25 @@ var app = new Vue({
           } else {
             const value = parseFloat(rawData[1])
             dataToAdd.y = value < 0 ? null : value;
-            color = this.colors[parseInt(file.name.split('_')[1]) - 1].color
+            color = this.colors[(parseInt(file.name.split('_')[1]) - 1) % this.colors.length].color
           }
-          if (isAction) formatedData.push({ x: date, y: 0, });
-          formatedData.push(dataToAdd);
-          if (isAction) formatedData.push({ x: date, y: 0, });
+          //add formated data
+          if (isActionLogFile) {
+            formatedData = formatedData.concat([{ x: date, y: 0, }, dataToAdd, { x: date, y: null, }]);
+          } else {
+            formatedData.push(dataToAdd);
+          }
         }
       }
       //Add data to chart
-      this.data.push({
+      this.chartData.push({
         type: 'line',
         dataPoints: formatedData,
-        lineDashType: file.name.indexOf('sensor') >= 0 ? "solid" : "dash",
+        lineDashType: file.name.indexOf('kettle') >= 0 ? "dash" : "solid",
         name: file.name.replace('.log', ''),
         lineColor: color,
         color: color,
-        showInLegend: !isAction,
+        showInLegend: !isActionLogFile,
         legendText: file.name.replace('.log', ''),
         xValueType: "dateTime"
       });

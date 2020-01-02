@@ -22,7 +22,7 @@
                 </v-toolbar>
                 <v-card-text>
                   <v-form>
-                    <v-file-input ref="myFiles" v-model="files" multiple label="Log files"></v-file-input>
+                    <v-file-input ref="myFiles" v-model="files" multiple small-chips label="Log files" accept=".log"></v-file-input>
                     <v-color-picker v-for="color in colors" v-model="color.color" style="display:inline-block"></v-color-picker>
                   </v-form>
                 </v-card-text>
