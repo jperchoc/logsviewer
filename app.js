@@ -1,6 +1,14 @@
 ///////////////////////////////////
 //            DATA               //
 ///////////////////////////////////
+
+//File name constants
+const EXTENSION = ".log"
+const ACTION_FILE_NAME = "action"
+const SENSOR_FILE_NAME = "sensor_"
+const TARGET_FILE_NAME = "kettle_"
+
+//Charting options
 let chartOptions = {
   theme: "light2",
   animationEnabled: true,
@@ -44,7 +52,7 @@ let chartOptions = {
   },
   data: null
 }
-
+//Function to read files asyncrously
 function readFileAsync(file) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
@@ -69,11 +77,11 @@ var app = new Vue({
     chartData: [],
     files: [],
     colors: [
-      { color: '#4661EE'},
-      { color: '#EC5657'},
-      { color: '#1BCDD1'},
-      { color: '#D1CBDC'},
-      { color: '#CBD1DC'}
+      { color: '#2B7ACA'},
+      { color: '#37CCB3'},
+      { color: '#D51C3F'},
+      { color: '#C196D8'},
+      { color: '#C26223'}
     ]
   },
   methods: {
@@ -88,14 +96,29 @@ var app = new Vue({
       files = files.sort((a, b) => a.name.localeCompare(b.name));
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        await this.prepareFile(file);
+        await this.addFileAsData(file);
       }
     },
-    prepareFile: async function(file) {
-      let text = await readFileAsync(file);
-      const isActionLogFile = file.name === 'action.log';
+    addFileAsData: async function(file) {
+      let formatedData = await this.parseFile(file);
+      let color = file.name === ACTION_FILE_NAME + EXTENSION ? 'black' : this.colors[(parseInt(file.name.split('_')[1]) - 1) % this.colors.length].color;
+      //Add data to chart
+      this.chartData.push({
+        type: 'line',
+        dataPoints: formatedData,
+        lineDashType: file.name.indexOf(TARGET_FILE_NAME) >= 0 ? "dash" : "solid",
+        name: file.name.replace(EXTENSION, ''),
+        lineColor: color,
+        color: color,
+        showInLegend: file.name !== ACTION_FILE_NAME + EXTENSION,
+        legendText: file.name.replace(EXTENSION, ''),
+        xValueType: "dateTime"
+      });
+    },
+    parseFile: async function(file) {
+      const text = await readFileAsync(file);
+      const isActionLogFile = file.name === ACTION_FILE_NAME + EXTENSION;
       const lines = text.split(/\r?\n/)
-      let color = 'black';
       let formatedData = [];
       //Format Data
       for (let i = 0; i < lines.length; i++) {
@@ -111,8 +134,7 @@ var app = new Vue({
             dataToAdd.markerType = "cross";
           } else {
             const value = parseFloat(rawData[1])
-            dataToAdd.y = value < 0 ? null : value;
-            color = this.colors[(parseInt(file.name.split('_')[1]) - 1) % this.colors.length].color
+            dataToAdd.y = value < 0 || value > 150 ? null : value;
           }
           //add formated data
           if (isActionLogFile) {
@@ -122,18 +144,7 @@ var app = new Vue({
           }
         }
       }
-      //Add data to chart
-      this.chartData.push({
-        type: 'line',
-        dataPoints: formatedData,
-        lineDashType: file.name.indexOf('kettle') >= 0 ? "dash" : "solid",
-        name: file.name.replace('.log', ''),
-        lineColor: color,
-        color: color,
-        showInLegend: !isActionLogFile,
-        legendText: file.name.replace('.log', ''),
-        xValueType: "dateTime"
-      });
+      return formatedData;
     }
   }
 })
